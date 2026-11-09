@@ -1,7 +1,8 @@
 
 (() => {
   const configReady = window.SUPABASE_URL && window.SUPABASE_ANON_KEY &&
-    !window.SUPABASE_URL.startsWith("YOUR_") && !window.SUPABASE_ANON_KEY.startsWith("YOUR_");
+    !window.SUPABASE_URL.startsWith("YOUR_") &&
+    !window.SUPABASE_ANON_KEY.startsWith("YOUR_");
 
   const client = configReady && window.supabase
     ? window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY)
@@ -9,8 +10,8 @@
 
   const categories = ["packaging", "delivery", "pricing", "communication"];
   const selected = { packaging: 0, delivery: 0, pricing: 0, communication: 0 };
-
   const $ = id => document.getElementById(id);
+
   const msg = (id, text, error = false) => {
     const el = $(id);
     el.textContent = text;
@@ -24,15 +25,20 @@
 
   document.querySelectorAll(".star-picker").forEach(group => {
     const key = group.dataset.rating;
+
     for (let i = 1; i <= 5; i++) {
       const b = document.createElement("button");
       b.type = "button";
       b.textContent = "★";
       b.setAttribute("aria-label", `${i} stars`);
+
       b.addEventListener("click", () => {
         selected[key] = i;
-        [...group.children].forEach((x, j) => x.classList.toggle("active", j < i));
+        [...group.children].forEach((x, j) => {
+          x.classList.toggle("active", j < i);
+        });
       });
+
       group.appendChild(b);
     }
   });
@@ -78,6 +84,7 @@
       .order("created_at", { ascending: false });
 
     if (error) {
+      console.error("Public reviews error:", error);
       $("reviews-list").innerHTML =
         '<div class="empty-state"><h3>REVIEWS TEMPORARILY UNAVAILABLE</h3><p>Please try again later.</p></div>';
       return;
@@ -91,7 +98,8 @@
       ? `Based on ${rows.length} published review${rows.length === 1 ? "" : "s"}`
       : "No published reviews yet";
 
-    $("review-total").textContent = `${rows.length} REVIEW${rows.length === 1 ? "" : "S"}`;
+    $("review-total").textContent =
+      `${rows.length} REVIEW${rows.length === 1 ? "" : "S"}`;
 
     if (!rows.length) {
       $("overall-rating").textContent = "—";
@@ -215,9 +223,11 @@
       $("photo-preview").innerHTML = "";
       $("char-count").textContent = "0 / 1200";
 
-      msg("form-message", "Thank you! Your review has been submitted and will appear publicly after approval.");
+      msg("form-message",
+        "Thank you! Your review has been submitted and will appear publicly after approval.");
 
     } catch (err) {
+      console.error("Review submission error:", err);
       msg("form-message", err.message || "Could not submit your review. Please try again.", true);
     } finally {
       button.disabled = false;
@@ -225,28 +235,54 @@
     }
   });
 
+  // Email and password administrator login
   $("login-form").addEventListener("submit", async e => {
     e.preventDefault();
 
     if (!client) {
-      msg("login-message", "Complete the Supabase setup first.", true);
+      msg("login-message", "Supabase configuration is missing.", true);
       return;
     }
 
-    const { error } = await client.auth.signInWithOtp({
-      email: $("admin-email").value.trim(),
-      options: {
-        emailRedirectTo: location.origin + location.pathname + "#admin"
-      }
-    });
+    const email = $("admin-email").value.trim();
+    const password = $("admin-password").value;
 
-    msg("login-message",
-      error ? error.message : "Sign-in link sent. Check your email.",
-      !!error
-    );
+    if (!email || !password) {
+      msg("login-message", "Enter your email and password.", true);
+      return;
+    }
+
+    const button = e.submitter;
+    button.disabled = true;
+    button.textContent = "SIGNING IN…";
+
+    try {
+      const { data, error } = await client.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) throw error;
+
+      await refreshAdmin(data.session);
+
+      msg("login-message", "Login successful.");
+
+    } catch (err) {
+      console.error("Admin login error:", err);
+      msg("login-message", err.message || "Login failed. Check your email and password.", true);
+    } finally {
+      button.disabled = false;
+      button.textContent = "ADMIN LOGIN";
+    }
   });
 
-  $("sign-out").addEventListener("click", () => client?.auth.signOut());
+  $("sign-out").addEventListener("click", async () => {
+    if (!client) return;
+    const { error } = await client.auth.signOut();
+    if (error) alert(error.message);
+    await refreshAdmin(null);
+  });
 
   async function refreshAdmin(sessionOverride) {
     if (!client) return;
@@ -255,10 +291,15 @@
 
     if (session === undefined) {
       const { data, error } = await client.auth.getSession();
+
       if (error) {
         console.error("Session error:", error);
+        $("admin-signed-out").hidden = false;
+        $("admin-signed-in").hidden = true;
+        msg("login-message", error.message, true);
         return;
       }
+
       session = data.session;
     }
 
@@ -272,26 +313,30 @@
       .eq("status", "pending")
       .order("created_at", { ascending: true });
 
-    $("pending-list").innerHTML = error
-      ? `<p class="form-message error">${esc(error.message)}</p>`
-      : (!data.length
-        ? '<p class="muted">No reviews waiting for approval.</p>'
-        : data.map(r => `
-          <div class="pending-item">
-            <b>${esc(r.customer_name)}</b>
-            <span class="muted"> · ${dateLabel(r.created_at)}</span>
-            <p>${esc(r.review_text)}</p>
-            <div class="review-ratings">
-              ${categories.map(k => `<span>${k}: <b>${r[k]}★</b></span>`).join("")}
-            </div>
-            ${r.order_reference ? `<p class="muted">Order reference: ${esc(r.order_reference)}</p>` : ""}
-            ${(r.photo_urls || []).map(u => `<a href="${safeUrl(u)}" target="_blank" rel="noopener"><img src="${safeUrl(u)}" style="width:85px;height:85px;object-fit:cover;margin:8px 8px 0 0"></a>`).join("")}
-            <div class="pending-actions">
-              <button class="secondary-btn approve" data-id="${r.id}" data-status="approved">APPROVE</button>
-              <button class="secondary-btn reject" data-id="${r.id}" data-status="rejected">REJECT</button>
-            </div>
-          </div>`
-        ).join(""));
+    if (error) {
+      $("pending-list").innerHTML =
+        `<p class="form-message error">${esc(error.message)}</p>`;
+      return;
+    }
+
+    $("pending-list").innerHTML = !data.length
+      ? '<p class="muted">No reviews waiting for approval.</p>'
+      : data.map(r => `
+        <div class="pending-item">
+          <b>${esc(r.customer_name)}</b>
+          <span class="muted"> · ${dateLabel(r.created_at)}</span>
+          <p>${esc(r.review_text)}</p>
+          <div class="review-ratings">
+            ${categories.map(k => `<span>${k}: <b>${r[k]}★</b></span>`).join("")}
+          </div>
+          ${r.order_reference ? `<p class="muted">Order reference: ${esc(r.order_reference)}</p>` : ""}
+          ${(r.photo_urls || []).map(u => `<a href="${safeUrl(u)}" target="_blank" rel="noopener"><img src="${safeUrl(u)}" style="width:85px;height:85px;object-fit:cover;margin:8px 8px 0 0"></a>`).join("")}
+          <div class="pending-actions">
+            <button class="secondary-btn approve" data-id="${r.id}" data-status="approved">APPROVE</button>
+            <button class="secondary-btn reject" data-id="${r.id}" data-status="rejected">REJECT</button>
+          </div>
+        </div>`
+      ).join("");
 
     $("pending-list").querySelectorAll("button[data-id]").forEach(b => {
       b.addEventListener("click", async () => {
