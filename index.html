@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -33,7 +34,10 @@
     </section>
 
     <section class="stats" aria-label="Review summary">
-      <div class="overall"><div class="big-rating" id="overall-rating">—</div><div><div class="stars" id="overall-stars">☆☆☆☆☆</div><div class="muted" id="review-count">No published reviews yet</div></div></div>
+      <div class="overall">
+        <div class="big-rating" id="overall-rating">—</div>
+        <div><div class="stars" id="overall-stars">☆☆☆☆☆</div><div class="muted" id="review-count">No published reviews yet</div></div>
+      </div>
       <div class="stat-note">ONLY APPROVED CUSTOMER REVIEWS<br><span>Every submission is checked before it goes public.</span></div>
     </section>
 
@@ -45,38 +49,89 @@
     </section>
 
     <section class="reviews-section">
-      <div class="section-heading"><div><p class="eyebrow">FROM THE COLLECTOR COMMUNITY</p><h2>BUYER <em>FEEDBACK</em></h2></div><span class="review-total" id="review-total">0 REVIEWS</span></div>
-      <div class="review-grid" id="reviews-list"><div class="empty-state"><span>★</span><h3>THE FIRST REVIEW STARTS HERE</h3><p>Once a customer submits a review and it is approved, it will appear here for everyone to see.</p></div></div>
+      <div class="section-heading">
+        <div><p class="eyebrow">FROM THE COLLECTOR COMMUNITY</p><h2>BUYER <em>FEEDBACK</em></h2></div>
+        <span class="review-total" id="review-total">0 REVIEWS</span>
+      </div>
+      <div class="review-grid" id="reviews-list">
+        <div class="empty-state"><span>★</span><h3>THE FIRST REVIEW STARTS HERE</h3><p>Once a customer submits a review and it is approved, it will appear here for everyone to see.</p></div>
+      </div>
     </section>
 
     <section class="form-section" id="write-review">
-      <div class="form-intro"><p class="eyebrow">YOUR EXPERIENCE MATTERS</p><h2>DROP YOUR<br><em>REVIEW.</em></h2><p>Rate each part of your order, add a few words, and share a photo if you'd like.</p><div class="notice">🛡️ Reviews are published after manual approval. Your email and order reference are never shown publicly.</div></div>
+      <div class="form-intro">
+        <p class="eyebrow">YOUR EXPERIENCE MATTERS</p>
+        <h2>DROP YOUR<br><em>REVIEW.</em></h2>
+        <p>Rate each part of your order, add a few words, and share a photo if you'd like.</p>
+        <div class="notice">🛡️ Reviews are published after manual approval. Your email and order reference are never shown publicly.</div>
+      </div>
+
       <form id="review-form" class="review-form">
-        <div class="form-row"><label for="customer-name">YOUR NAME / NICKNAME *</label><input id="customer-name" name="customer_name" maxlength="60" placeholder="e.g. Diecast Collector" required></div>
-        <div class="form-row"><label for="order-ref">ORDER REFERENCE <small>(optional, helps verify your purchase)</small></label><input id="order-ref" name="order_reference" maxlength="80" placeholder="e.g. Order #HW1024"></div>
+        <div class="form-row">
+          <label for="customer-name">YOUR NAME / NICKNAME *</label>
+          <input id="customer-name" name="customer_name" maxlength="60" placeholder="e.g. Diecast Collector" required>
+        </div>
+        <div class="form-row">
+          <label for="order-ref">ORDER REFERENCE <small>(optional, helps verify your purchase)</small></label>
+          <input id="order-ref" name="order_reference" maxlength="80" placeholder="e.g. Order #HW1024">
+        </div>
         <div class="ratings">
           <div class="rating-control"><label>PACKAGING *</label><div class="star-picker" data-rating="packaging" role="group" aria-label="Packaging rating"></div></div>
           <div class="rating-control"><label>DELIVERY *</label><div class="star-picker" data-rating="delivery" role="group" aria-label="Delivery rating"></div></div>
           <div class="rating-control"><label>PRICING *</label><div class="star-picker" data-rating="pricing" role="group" aria-label="Pricing rating"></div></div>
           <div class="rating-control"><label>COMMUNICATION *</label><div class="star-picker" data-rating="communication" role="group" aria-label="Communication rating"></div></div>
         </div>
-        <div class="form-row"><label for="review-text">YOUR REVIEW *</label><textarea id="review-text" name="review_text" rows="5" maxlength="1200" placeholder="How was your buying experience?" required></textarea><div class="field-foot"><span>Be honest and respectful.</span><span id="char-count">0 / 1200</span></div></div>
-        <div class="form-row"><label for="review-photos">ADD PHOTOS <small>(up to 3 images, 5 MB each)</small></label><input id="review-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple><div class="muted small">Parcel, packaging or your new Hot Wheels. Please don't upload personal or address details.</div><div id="photo-preview" class="photo-preview"></div></div>
-        <label class="consent"><input type="checkbox" id="consent" required><span>I confirm this review reflects my genuine experience and I agree that the review text and selected photos may be displayed publicly if approved.</span></label>
+        <div class="form-row">
+          <label for="review-text">YOUR REVIEW *</label>
+          <textarea id="review-text" name="review_text" rows="5" maxlength="1200" placeholder="How was your buying experience?" required></textarea>
+          <div class="field-foot"><span>Be honest and respectful.</span><span id="char-count">0 / 1200</span></div>
+        </div>
+        <div class="form-row">
+          <label for="review-photos">ADD PHOTOS <small>(up to 3 images, 5 MB each)</small></label>
+          <input id="review-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          <div class="muted small">Parcel, packaging or your new Hot Wheels. Please don't upload personal or address details.</div>
+          <div id="photo-preview" class="photo-preview"></div>
+        </div>
+        <label class="consent">
+          <input type="checkbox" id="consent" required>
+          <span>I confirm this review reflects my genuine experience and I agree that the review text and selected photos may be displayed publicly if approved.</span>
+        </label>
         <button class="primary-btn submit-btn" type="submit">SUBMIT FOR APPROVAL <span>→</span></button>
         <p class="form-message" id="form-message" role="status"></p>
       </form>
     </section>
 
     <section class="admin-section" id="admin">
-      <div class="section-heading"><div><p class="eyebrow">PRIVATE CONTROL PANEL</p><h2>ADMIN <em>GARAGE</em></h2></div></div>
+      <div class="section-heading">
+        <div><p class="eyebrow">PRIVATE CONTROL PANEL</p><h2>ADMIN <em>GARAGE</em></h2></div>
+      </div>
       <div class="admin-card">
-        <div id="admin-signed-out"><p class="muted">Sign in with the administrator email configured in Supabase to review pending submissions.</p><form id="login-form" class="login-form"><input id="admin-email" type="email" placeholder="Admin email address" required><button class="secondary-btn" type="submit">SEND SIGN-IN LINK</button></form><p id="login-message" class="form-message"></p></div>
-        <div id="admin-signed-in" hidden><div class="admin-toolbar"><b>Pending submissions</b><button id="sign-out" class="secondary-btn" type="button">SIGN OUT</button></div><div id="pending-list"></div></div>
+        <div id="admin-signed-out">
+          <p class="muted">Administrator login. This area is only for the website owner.</p>
+          <form id="login-form" class="login-form">
+            <input id="admin-email" type="email" placeholder="Admin email address" value="pushpendrakaushik61@gmail.com" required>
+            <input id="admin-password" type="password" placeholder="Admin password" autocomplete="current-password" required>
+            <button class="secondary-btn" type="submit">ADMIN LOGIN</button>
+          </form>
+          <p id="login-message" class="form-message" role="status"></p>
+        </div>
+        <div id="admin-signed-in" hidden>
+          <div class="admin-toolbar">
+            <b>Pending submissions</b>
+            <button id="sign-out" class="secondary-btn" type="button">SIGN OUT</button>
+          </div>
+          <div id="pending-list"></div>
+        </div>
       </div>
     </section>
   </main>
-  <footer><div class="footer-brand">PUSHPENDRA'S <b>HOT WHEELS REVIEWS</b></div><p>Built for collectors. Powered by honest feedback.</p><a href="#write-review">WRITE A REVIEW ↑</a></footer>
+
+  <footer>
+    <div class="footer-brand">PUSHPENDRA'S <b>HOT WHEELS REVIEWS</b></div>
+    <p>Built for collectors. Powered by honest feedback.</p>
+    <a href="#write-review">WRITE A REVIEW ↑</a>
+  </footer>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="config.js"></script>
   <script src="app.js"></script>
